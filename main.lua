@@ -1,66 +1,51 @@
-function is_touching(box1, box2)
-	if box1.x < box2.x + box2.w and box1.x + box1.w > box2.x and box1.y < box2.y + box2.h and box1.y + box1.h > box2.y then
-		return true
-	end
-	return false
-end
-
-function is_touching_any(player, boxes)
-	for i, box in ipairs(boxes) do
-		dis = is_touching(player, box)
-		if dis then
-			return true, box
-		end
-	end
-	return false
-end
+jump_force = 4
+air_jumps = 2
 
 function love.load()
-	player = {
-		x = 0, y = 0,
-		w = 50, h = 100,
-		speedz = 0,
-		color = {255, 255, 255, 255}
-	}
-	start = {x = 100, y = 100}
-	platforms = {
-		{x = 90, y = 400, w = 200, h = 50},
-		{x = 500, y = 400, w = 200, h = 50}
-	}
+	love.physics.setMeter(64)
+	world = love.physics.newWorld(0, 9.81 * 64, true)
+	
+	objects = {}
+	objects.ground = {}
+	objects.ground.body = love.physics.newBody(world, 400, 775)
+	objects.ground.shape = love.physics.newRectangleShape(800, 50)
+	objects.ground.fixture = love.physics.newFixture(objects.ground.body, objects.ground.shape)
 
-	player.x = start.x
-	player.y = start.y
+	objects.player = {}
+	objects.player.body = love.physics.newBody(world, 400, 300, "dynamic")
+	objects.player.shape = love.physics.newRectangleShape(25, 50)
+	objects.player.fixture = love.physics.newFixture(objects.player.body, objects.player.shape)
+
+	current_air_jumps = air_jumps
+
+	love.window.setMode(800, 800)
 end
 
-function love.keypressed(key)
-	if key == "space" then
-		player.speedz = -20
-	end
-end
-
-function love.update()
-	if player.speedz + 2 < 30 then
-		player.speedz = player.speedz + 2
-	end
-	player.y = player.y + player.speedz
-	touched, box = is_touching_any(player, platforms)
-	if touched then
-		player.y = box.y - player.h
+function love.update(dt) -- Amount of time spent from last frame
+	world:update(dt)
+	
+	x, y = objects.player.body:getPosition()
+	v_x, v_y = objects.player.body:getLinearVelocity()
+	ground_player_dis = love.physics.getDistance(objects.ground.fixture, objects.player.fixture)
+	if ground_player_dis == 0 then
+		curren_air_jumps = air_jumps
 	end
 	if love.keyboard.isDown("a") then
-		player.x = player.x - 10
+		objects.player.body:setPosition(x - 10, y)
 	end
 	if love.keyboard.isDown("d") then
-		player.x = player.x + 10
+		objects.player.body:setPosition(x + 10, y)
+	end
+	if ground_player_dis == 0 or current_air_jumps > 0 then
+		if love.keyboard.isDown("space") then
+			objects.player.body:setLinearVelocity(v_x, jump_force * -156.8)
+			current_air_jumps = current_air_jumps - 1
+		end
 	end
 end
 
 function love.draw()
-	love.graphics.setColor(player.color)
-	love.graphics.rectangle("fill", player.x, player.y, player.w, player.h)
-
-	love.graphics.setColor(128, 100, 112, 255)
-	for i, platform in ipairs(platforms) do
-		love.graphics.rectangle("fill", platform.x, platform.y, platform.w, platform.h)
-	end
+	love.graphics.setColor(1, 1, 1)
+	love.graphics.polygon("fill", objects.ground.body:getWorldPoints(objects.ground.shape:getPoints()))
+	love.graphics.polygon("fill", objects.player.body:getWorldPoints(objects.player.shape:getPoints()))
 end
