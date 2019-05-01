@@ -1,24 +1,10 @@
+require "lib" -- I simplified a bunch of things, you can check it in lib.lua
+
 jump_force = 6
 run_speed = 5
 air_jumps = 1
 start_x = 200
 start_y = 490
-
-function new_object(x, y, w, h, image, type)
-	ret = {}
-	ret.w = w
-	ret.h = h
-	if image ~= "none" then
-		ret.ratio_w = w / image:getWidth()
-		ret.ratio_h = h / image:getHeight()
-	end
-	ret.body = love.physics.newBody(world, x, y, type)
-	ret.shape = love.physics.newRectangleShape(w, h)
-	ret.fixture = love.physics.newFixture(ret.body, ret.shape)
-	ret.fixture:setFriction(0)
-	ret.image = image
-	return ret
-end
 
 function love.load()
 	love.physics.setMeter(64)
