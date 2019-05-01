@@ -21,3 +21,24 @@ function new_object(x, y, w, h, image, type)
 	ret.image = image
 	return ret
 end
+
+function display_object(obj)
+	if obj.image ~= "none" then
+		love.graphics.draw(
+			obj.image,
+			obj.body:getX() - obj.w / 2,
+			obj.body:getY() - obj.h / 2,
+			0,
+			obj.ratio_w,
+			obj.ratio_h
+		)
+	else
+		love.graphics.rectangle(
+			"fill",
+			obj.body:getX() - obj.w / 2,
+			obj.body:getY() - obj.h / 2,
+			obj.w,
+			obj.h
+		)
+	end
+end

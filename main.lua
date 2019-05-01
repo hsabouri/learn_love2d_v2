@@ -17,14 +17,14 @@ function love.load()
 	goal_image = love.graphics.newImage("goal.png")
 	
 	objects = {}
+	objects.player = new_object(start_x, start_y, 25, 50, player_image, "dynamic")
+	objects.goal = new_object(450, 170, 50, 50, goal_image, "static")
+
 	objects.platforms = {}
 	objects.platforms[1] = new_object(200, 750, 100, 25, platform_image, "static")
 	objects.platforms[2] = new_object(400, 650, 100, 25, platform_image, "static")
 	objects.platforms[3] = new_object(500, 540, 100, 25, platform_image, "static")
 	objects.platforms[4] = new_object(250, 400, 100, 25, platform_image, "static")
-
-	objects.player = new_object(start_x, start_y, 25, 50, player_image, "dynamic")
-	objects.goal = new_object(450, 170, 50, 50, goal_image, "static")
 
 	current_air_jumps = air_jumps
 	jump = false
@@ -58,7 +58,6 @@ function love.update(dt) -- Amount of time spent from last frame
 		world:update(dt)
 	end
 
-	-- freeze orientation of player
 	objects.player.body:setAngle(0)
 	
 	x, y = objects.player.body:getPosition()
@@ -102,36 +101,11 @@ function love.draw()
 
 	if win == false then -- player is trying to win ;)
 		love.graphics.draw(background_image)
-
 		for key, value in ipairs(objects.platforms) do -- draw all platforms
-			love.graphics.draw(
-				value.image,
-				value.body:getX() - value.w / 2,
-				value.body:getY() - value.h / 2,
-				0,
-				value.ratio_w,
-				value.ratio_h
-			)
+			display_object(value)
 		end
-
-		love.graphics.draw( -- draw player
-			objects.player.image,
-			objects.player.body:getX() - objects.player.w / 2,
-			objects.player.body:getY() - objects.player.h / 2,
-			0,
-			objects.player.ratio_w,
-			objects.player.ratio_h
-		)
-
-		love.graphics.draw( -- draw player
-			objects.goal.image,
-			objects.goal.body:getX() - objects.goal.w / 2,
-			objects.goal.body:getY() - objects.goal.h / 2,
-			0,
-			objects.goal.ratio_w,
-			objects.goal.ratio_h
-		)
-
+		display_object(objects.player)
+		display_object(objects.goal)
 	else -- player has win
 		love.graphics.draw(
 			win_image,
